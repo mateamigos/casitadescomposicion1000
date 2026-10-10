@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full w-full overflow-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>La Casita de Descomposición de Números</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --color-c: #16a34a; /* Centenas - Verde */
+            --color-d: #dc2626; /* Decenas - Rojo */
+            --color-u: #2563eb; /* Unidades - Azul */
+            --wood-dark: #2c1609;
+            --wood-mid: #784421;
+            --wood-light: #9d5e30;
+        }
+
+        html, body {
+            height: 100dvh;
+            max-height: 100dvh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Fredoka', 'Nunito', sans-serif;
+            background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 35%, #fef3c7 70%, #d9f99d 100%);
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        /* Color Utility Classes for Digits and Headers */
+        .digit-c { color: var(--color-c) !important; }
+        .digit-d { color: var(--color-d) !important; }
+        .digit-u { color: var(--color-u) !important; }
+
+        .bg-c { background-color: var(--color-c) !important; }
+        .bg-d { background-color: var(--color-d) !important; }
+        .bg-u { background-color: var(--color-u) !important; }
+
+        /* Animated Floating Clouds */
+        @keyframes floatCloudSlow {
+            0% { transform: translateX(-220px); }
+            100% { transform: translateX(calc(100vw + 220px)); }
+        }
+        @keyframes floatCloudFast {
+            0% { transform: translateX(-180px); }
+            100% { transform: translateX(calc(100vw + 180px)); }
+        }
+
+        .animate-cloud-slow { animation: floatCloudSlow 55s linear infinite; }
+        .animate-cloud-mid { animation: floatCloudFast 42s linear infinite 12s; }
+        .animate-cloud-fast { animation: floatCloudSlow 35s linear infinite 25s; }
+
+        /* Animated Flying Bird across screen */
+        @keyframes flyAcross {
+            0% { transform: translate(-80px, 8vh) scale(0.8); }
+            50% { transform: translate(50vw, 3vh) scale(0.95); }
+            100% { transform: translate(calc(100vw + 80px), 10vh) scale(0.8); }
+        }
+        .bird-flying-bg {
+            animation: flyAcross 26s ease-in-out infinite;
+        }
+
+        @keyframes flapWing {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-35deg); }
+        }
+        .wing-flap {
+            transform-origin: 75% 25%;
+            animation: flapWing 0.35s infinite ease-in-out;
+        }
+
+        /* Wood Panel Texture */
+        .wood-house-panel {
+            background-color: var(--wood-mid);
+            background-image: 
+                repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 25px, transparent 25px, transparent 50px),
+                linear-gradient(180deg, #a05a2c 0%, #784421 50%, #582f14 100%);
+            box-shadow: inset 0 2px 6px rgba(255,255,255,0.3), inset 0 -6px 12px rgba(0,0,0,0.6), 0 10px 25px rgba(0,0,0,0.25);
+            border: 4px solid var(--wood-dark);
+            border-radius: 0 0 20px 20px;
+        }
+
+        /* Dark Wooden Beam Dividers for Columns C, D, U */
+        .column-divider-beam {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 10px;
+            background: linear-gradient(90deg, #1e0e05 0%, #42230e 40%, #5a3115 70%, #1a0b04 100%);
+            box-shadow: -2px 0 5px rgba(0,0,0,0.4), 2px 0 5px rgba(0,0,0,0.4);
+            z-index: 20;
+            border-radius: 3px;
+        }
+        .col-div-1 { left: 33.33%; transform: translateX(-50%); }
+        .col-div-2 { left: 66.66%; transform: translateX(-50%); }
+
+        /* Metallic Corner Screws */
+        .screw-dot {
+            width: 5px;
+            height: 5px;
+            background: radial-gradient(circle at 30% 30%, #f1f5f9, #64748b 70%, #334155);
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+        }
+        .s-tl { top: 2px; left: 3px; }
+        .s-tr { top: 2px; right: 3px; }
+        .s-bl { bottom: 2px; left: 3px; }
+        .s-br { bottom: 2px; right: 3px; }
+
+        /* Cream Cell Plates */
+        .cell-plate {
+            background: linear-gradient(180deg, #ffffff 0%, #fdfbf7 100%);
+            border: 2px solid #a38f78;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.9), 0 2px 4px rgba(0,0,0,0.12);
+            height: clamp(34px, 5.2vh, 48px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Column Header Plates */
+        .header-plate {
+            background: linear-gradient(180deg, #ffffff 0%, #f5eedc 100%);
+            border: 2.5px solid #634327;
+            border-radius: 10px;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.9), 0 3px 6px rgba(0,0,0,0.2);
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.5px;
+            height: clamp(28px, 4vh, 38px);
+        }
+
+        /* Stepper Digit Controls (▲ Digit ▼) */
+        .stepper-digit-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 1px;
+        }
+
+        .btn-stepper {
+            width: clamp(20px, 2.8vw, 26px);
+            height: clamp(12px, 1.8vh, 16px);
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: clamp(8px, 1.2vh, 10px);
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+            transition: transform 0.08s, filter 0.1s;
+            touch-action: manipulation;
+        }
+        .btn-stepper:active { transform: scale(0.85); }
+
+        .btn-c-style { background: linear-gradient(180deg, #22c55e, #15803d); }
+        .btn-d-style { background: linear-gradient(180deg, #ef4444, #b91c1c); }
+        .btn-u-style { background: linear-gradient(180deg, #3b82f6, #1d4ed8); }
+
+        /* Row Feedback Styling */
+        .row-ok {
+            border: 2px solid #22c55e !important;
+            background-color: #f0fdf4 !important;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.4) !important;
+        }
+
+        .row-err {
+            border: 2px solid #ef4444 !important;
+            background-color: #fef2f2 !important;
+            animation: rowShake 0.4s ease-in-out;
+        }
+
+        @keyframes rowShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        /* Pulse animation for welcome play button */
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(22, 163, 74, 0.5); }
+            50% { transform: scale(1.04); box-shadow: 0 12px 28px rgba(22, 163, 74, 0.7); }
+        }
+        .btn-play-pulse {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="h-[100dvh] max-h-[100dvh] w-vw overflow-hidden flex flex-col justify-between relative box-border p-1.5 sm:p-2">
+
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <svg class="animate-cloud-slow absolute top-2 -left-44 w-44 opacity-80" viewBox="0 0 100 60" fill="white">
+            <path d="M10 40 A20 20 0 0 1 40 20 A25 25 0 0 1 80 25 A15 15 0 0 1 90 40 Z"></path>
+        </svg>
+        <svg class="animate-cloud-mid absolute top-12 -left-44 w-56 opacity-70" viewBox="0 0 100 60" fill="white">
+            <path d="M10 40 A20 20 0 0 1 40 20 A25 25 0 0 1 80 25 A15 15 0 0 1 90 40 Z"></path>
+        </svg>
+        <svg class="animate-cloud-fast absolute top-20 -left-44 w-36 opacity-60" viewBox="0 0 100 60" fill="white">
+            <path d="M10 40 A20 20 0 0 1 40 20 A25 25 0 0 1 80 25 A15 15 0 0 1 90 40 Z"></path>
+        </svg>
+
+        <!-- Flying Bird across sky -->
+        <div class="bird-flying-bg absolute z-10 cursor-pointer pointer-events-auto" onclick="playBirdChirp()" title="¡Pío!">
+            <svg class="w-10 h-10 filter drop-shadow" viewBox="0 0 100 100">
+                <ellipse cx="50" cy="50" rx="24" ry="16" fill="#38bdf8"></ellipse>
+                <path class="wing-flap" d="M 45 45 C 30 20, 10 30, 35 50 Z" fill="#0284c7"></path>
+                <circle cx="66" cy="44" r="5" fill="white"></circle>
+                <circle cx="68" cy="44" r="2.5" fill="#0f172a"></circle>
+                <path d="M 72 46 L 86 50 L 71 55 Z" fill="#f97316"></path>
+            </svg>
+        </div>
+
+        <!-- Left Forest Tree -->
+        <svg class="absolute -left-6 bottom-0 h-[40vh] max-h-80 w-auto z-10 filter drop-shadow-md pointer-events-none opacity-90" viewBox="0 0 150 300">
+            <rect x="60" y="140" width="30" height="160" fill="#543310" rx="8" />
+            <path d="M 15 170 Q 50 120 75 145 Z" fill="#3a2209" />
+            <circle cx="75" cy="80" r="65" fill="#15803d" />
+            <circle cx="50" cy="110" r="45" fill="#16a34a" />
+            <circle cx="100" cy="100" r="50" fill="#22c55e" />
+        </svg>
+
+        <!-- Right Forest Tree -->
+        <svg class="absolute -right-6 bottom-0 h-[40vh] max-h-80 w-auto z-10 filter drop-shadow-md pointer-events-none opacity-90" viewBox="0 0 150 300">
+            <rect x="60" y="140" width="30" height="160" fill="#543310" rx="8" />
+            <path d="M 135 170 Q 100 120 75 145 Z" fill="#3a2209" />
+            <circle cx="75" cy="80" r="65" fill="#15803d" />
+            <circle cx="100" cy="110" r="45" fill="#16a34a" />
+            <circle cx="50" cy="100" r="50" fill="#22c55e" />
+        </svg>
+    </div>
+
+    <header class="relative z-30 max-w-lg mx-auto w-full flex-shrink-0">
+        <div class="bg-white/95 backdrop-blur-md rounded-xl p-1.5 sm:p-2 shadow border-2 border-amber-200 flex items-center justify-between gap-1.5">
+            
+            <div class="flex items-center space-x-1.5">
+                <span class="text-xl sm:text-2xl">🏡</span>
+                <div>
+                    <h1 class="text-xs sm:text-base font-black text-amber-950 tracking-tight leading-tight">
+                        La Casita de Descomposición
+                    </h1>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-1">
+                <button onclick="openWelcomeModal()" class="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-[11px] sm:text-xs rounded-lg shadow border-b-2 border-amber-800 transition flex items-center space-x-0.5">
+                    <span>❓</span>
+                    <span class="hidden sm:inline">Cómo Jugar</span>
+                </button>
+                <div class="bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-lg flex items-center space-x-1">
+                    <span class="text-xs">⭐</span>
+                    <span id="star-count" class="font-black text-amber-950 text-xs">0</span>
+                </div>
+                <button id="audio-toggle-btn" onclick="toggleAudio()" class="w-7 h-7 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg border border-amber-300 flex items-center justify-center text-xs" title="Sonido">
+                    🔊
+                </button>
+            </div>
+        </div>
+
+        <!-- Range / Difficulty Control Bar -->
+        <div class="mt-1 bg-amber-950/15 backdrop-blur-sm p-1 rounded-xl border border-amber-300/70 shadow-sm">
+            <div class="grid grid-cols-4 gap-1">
+                <button onclick="setRange('200')" id="btn-range-200" class="range-btn py-1 px-0.5 rounded-lg font-black text-[10px] sm:text-xs transition bg-amber-800 text-white shadow">
+                    Hasta 200
+                </button>
+                <button onclick="setRange('600')" id="btn-range-600" class="range-btn py-1 px-0.5 rounded-lg font-bold text-[10px] sm:text-xs transition text-amber-950 hover:bg-amber-200/70">
+                    Hasta 600
+                </button>
+                <button onclick="setRange('999')" id="btn-range-999" class="range-btn py-1 px-0.5 rounded-lg font-bold text-[10px] sm:text-xs transition text-amber-950 hover:bg-amber-200/70">
+                    Hasta 999
+                </button>
+                <button onclick="setRange('random')" id="btn-range-random" class="range-btn py-1 px-0.5 rounded-lg font-bold text-[10px] sm:text-xs transition text-amber-950 hover:bg-amber-200/70">
+                    Aleatorio
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-20 max-w-sm w-full mx-auto flex-1 flex flex-col items-center justify-center min-h-0 py-1">
+
+        <div class="relative w-full flex flex-col items-center my-auto">
+
+            <!-- Interactive Flying Yellow Bird (Upper Right Roof) -->
+            <div class="absolute -top-5 -right-3 sm:-right-6 z-40 cursor-pointer hover:scale-110 transition" onclick="playBirdChirp()" title="¡Pío pío!">
+                <svg class="w-12 h-12 sm:w-16 sm:h-16 filter drop-shadow-md" viewBox="0 0 100 100">
+                    <ellipse cx="50" cy="50" rx="28" ry="20" fill="#facc15" transform="rotate(-10 50 50)"></ellipse>
+                    <path class="wing-flap" d="M 45 45 C 30 20, 10 30, 35 50 Z" fill="#eab308"></path>
+                    <path d="M 20 52 L 5 45 L 8 55 L 2 60 L 22 56 Z" fill="#ca8a04"></path>
+                    <circle cx="68" cy="42" r="6" fill="white"></circle>
+                    <circle cx="70" cy="42" r="3" fill="#0f172a"></circle>
+                    <path d="M 76 44 L 92 48 L 74 54 Z" fill="#ea580c"></path>
+                </svg>
+            </div>
+
+            <!-- TRIANGULAR WOODEN ROOF WITH TARGET MEDALLION -->
+            <div class="w-full relative z-30">
+                <svg viewBox="0 0 400 110" class="w-full h-auto drop-shadow-md">
+                    <!-- Outer Roof Wood Planks -->
+                    <polygon points="200,8 10,105 390,105" fill="#784421" stroke="#2c1609" stroke-width="7" stroke-linejoin="round"/>
+                    <polygon points="200,20 28,100 372,100" fill="#9d5e30"/>
+                    <line x1="200" y1="20" x2="200" y2="100" stroke="#542d13" stroke-width="3.5"/>
+                    <line x1="110" y1="60" x2="290" y2="60" stroke="#542d13" stroke-width="2.5"/>
+                    <circle cx="32" cy="95" r="3" fill="#475569"/>
+                    <circle cx="368" cy="95" r="3" fill="#475569"/>
+                    <circle cx="200" cy="24" r="3" fill="#475569"/>
+                </svg>
+
+                <!-- Medallion displaying target number -->
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/3 w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full border-3 border-amber-950 shadow-lg flex items-center justify-center p-0.5 z-40">
+                    <span id="target-number-badge" class="text-xl sm:text-2xl font-black tracking-tight">
+                        <!-- Colored Target Digits -->
+                    </span>
+                </div>
+            </div>
+
+            <!-- MAIN HOUSE BODY WITH 3 DIVIDED COLUMNS & MULTICOLOR HEADERS -->
+            <div class="wood-house-panel w-full p-2 sm:p-2.5 relative z-20 -mt-1.5">
+                
+                <!-- Explicit Dark Wooden Dividers -->
+                <div class="column-divider-beam col-div-1"></div>
+                <div class="column-divider-beam col-div-2"></div>
+
+                <!-- Column Header Plates: Centered & Color-coded (C, CD, CDU) -->
+                <div class="grid grid-cols-3 gap-1.5 mb-1.5 relative z-30 text-center">
+                    
+                    <!-- Header C (Green) -->
+                    <div class="header-plate text-sm sm:text-base relative">
+                        <span class="screw-dot s-tl"></span><span class="screw-dot s-tr"></span>
+                        <span class="screw-dot s-bl"></span><span class="screw-dot s-br"></span>
+                        <span class="digit-c">C</span>
+                    </div>
+
+                    <!-- Header CD (Green C + Red D) -->
+                    <div class="header-plate text-sm sm:text-base relative">
+                        <span class="screw-dot s-tl"></span><span class="screw-dot s-tr"></span>
+                        <span class="screw-dot s-bl"></span><span class="screw-dot s-br"></span>
+                        <span class="digit-c">C</span><span class="digit-d">D</span>
+                    </div>
+
+                    <!-- Header CDU (Green C + Red D + Blue U) -->
+                    <div class="header-plate text-sm sm:text-base relative">
+                        <span class="screw-dot s-tl"></span><span class="screw-dot s-tr"></span>
+                        <span class="screw-dot s-bl"></span><span class="screw-dot s-br"></span>
+                        <span class="digit-c">C</span><span class="digit-d">D</span><span class="digit-u">U</span>
+                    </div>
+                </div>
+
+                <!-- 5 House Decomposition Rows Container -->
+                <div id="house-rows-container" class="space-y-1 relative z-30">
+                    <!-- Rows rendered dynamically by JS -->
+                </div>
+
+            </div>
+
+            <!-- BRANCH BASE WITH UPSIDE DOWN HANGING BIRD -->
+            <div class="w-[104%] h-7 relative z-30 -mt-1 flex items-center justify-center">
+                <svg viewBox="0 0 420 35" class="w-full h-full drop-shadow">
+                    <path d="M 0,18 Q 100,5 210,20 T 420,16 L 420,28 Q 300,34 210,25 T 0,30 Z" fill="#4a2a11" stroke="#2c1609" stroke-width="2"></path>
+                    <path d="M 30,10 C 20,2 10,8 25,15 Z" fill="#16a34a"></path>
+                    <path d="M 380,12 C 390,2 400,8 385,18 Z" fill="#16a34a"></path>
+                </svg>
+
+                <!-- Upside Down Hanging Bird -->
+                <div class="absolute top-0 right-5 z-40 cursor-pointer hover:scale-110 transition" onclick="playBirdChirp()" title="¡Pío!">
+                    <svg class="w-9 h-9 transform rotate-180 filter drop-shadow" viewBox="0 0 100 100">
+                        <ellipse cx="50" cy="50" rx="24" ry="18" fill="#facc15"></ellipse>
+                        <path d="M 45 45 C 30 20, 10 30, 35 50 Z" fill="#eab308"></path>
+                        <circle cx="68" cy="42" r="5" fill="white"></circle>
+                        <circle cx="70" cy="42" r="2.5" fill="#0f172a"></circle>
+                        <path d="M 75 44 L 88 48 L 73 54 Z" fill="#ea580c"></path>
+                    </svg>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Main Game Action Buttons -->
+        <div class="mt-1 flex justify-center gap-2 w-full flex-shrink-0">
+            <button onclick="checkCurrentHouse()" class="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm rounded-xl shadow-md border-b-3 border-emerald-800 transform active:scale-95 transition flex items-center justify-center space-x-1">
+                <span>Comprobar Respuestas</span>
+                <span class="text-base">✔</span>
+            </button>
+
+            <button onclick="generateHouse()" class="py-2 px-3 bg-amber-700 hover:bg-amber-800 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md border-b-3 border-amber-900 transition transform active:scale-95 flex items-center space-x-1">
+                <span>🎲 Nueva Casa</span>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- WELCOME / EXPLANATORY MODAL -->
+    <div id="welcome-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-md z-50 flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl p-4 max-w-sm w-full shadow-2xl border-4 border-amber-400 relative text-amber-950 flex flex-col max-h-[92dvh]">
+            
+            <div class="text-center mb-2 flex-shrink-0">
+                <div class="inline-block bg-amber-100 p-1.5 rounded-xl text-3xl animate-bounce">🏡</div>
+                <h2 class="text-xl font-black text-amber-950 leading-tight">
+                    ¡La Casita de Descomposición!
+                </h2>
+                <p class="text-xs font-bold text-amber-800">
+                    Aprende Centenas, Decenas y Unidades
+                </p>
+            </div>
+
+            <!-- Symbolic Instruction Diagram -->
+            <div class="space-y-2 my-2 text-left flex-1 overflow-y-auto pr-1">
+                
+                <!-- Rule 1: Target Number -->
+                <div class="bg-amber-50 p-2 rounded-xl border border-amber-200 flex items-center space-x-2.5">
+                    <div class="w-10 h-10 bg-white rounded-full border-2 border-amber-900 flex items-center justify-center text-sm font-black shadow-sm flex-shrink-0">
+                        <span class="digit-c">1</span><span class="digit-d">7</span><span class="digit-u">3</span>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-xs text-amber-900">1. Número Objetivo</h4>
+                        <p class="text-[11px] font-semibold text-slate-600 leading-tight">Cada fila de la casita debe sumar este número.</p>
+                    </div>
+                </div>
+
+                <!-- Rule 2: Multi-color Headers -->
+                <div class="bg-amber-50 p-2 rounded-xl border border-amber-200 space-y-1">
+                    <h4 class="font-black text-xs text-amber-900">2. Significado de Colores</h4>
+                    <div class="grid grid-cols-3 gap-1 text-center text-[11px] font-black">
+                        <div class="bg-white py-0.5 rounded-lg border border-amber-300">
+                            <span class="digit-c">C</span>
+                            <div class="text-[9px] text-slate-500 font-bold">Verde = 100</div>
+                        </div>
+                        <div class="bg-white py-0.5 rounded-lg border border-amber-300">
+                            <span class="digit-c">C</span><span class="digit-d">D</span>
+                            <div class="text-[9px] text-slate-500 font-bold">Rojo = 10</div>
+                        </div>
+                        <div class="bg-white py-0.5 rounded-lg border border-amber-300">
+                            <span class="digit-c">C</span><span class="digit-d">D</span><span class="digit-u">U</span>
+                            <div class="text-[9px] text-slate-500 font-bold">Azul = 1</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rule 3: Steppers ▲ ▼ -->
+                <div class="bg-amber-50 p-2 rounded-xl border border-amber-200 flex items-center space-x-2.5">
+                    <div class="flex items-center bg-white p-1 rounded-lg border border-amber-300 space-x-1 flex-shrink-0">
+                        <div class="flex flex-col items-center">
+                            <span class="w-4 h-3 bg-emerald-600 text-white rounded text-[8px] flex items-center justify-center font-black">▲</span>
+                            <span class="text-xs font-black digit-c">1</span>
+                            <span class="w-4 h-3 bg-emerald-600 text-white rounded text-[8px] flex items-center justify-center font-black">▼</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="w-4 h-3 bg-red-600 text-white rounded text-[8px] flex items-center justify-center font-black">▲</span>
+                            <span class="text-xs font-black digit-d">5</span>
+                            <span class="w-4 h-3 bg-red-600 text-white rounded text-[8px] flex items-center justify-center font-black">▼</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-xs text-amber-900">3. Botones ▲ y ▼</h4>
+                        <p class="text-[11px] font-semibold text-slate-600 leading-tight">Usa las flechitas para poner los dígitos correctos.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Start Game Button -->
+            <button onclick="closeWelcomeModal()" class="btn-play-pulse w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base rounded-xl shadow-lg border-b-3 border-emerald-800 transition transform active:scale-95 flex items-center justify-center space-x-2 flex-shrink-0 mt-1">
+                <span>¡A JUGAR!</span>
+                <span class="text-xl">🚀</span>
+            </button>
+
+        </div>
+    </div>
+
+    <!-- Victory Celebration Modal -->
+    <div id="victory-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
+        <canvas id="confetti-canvas" class="absolute inset-0 pointer-events-none z-10"></canvas>
+        <div class="bg-white rounded-2xl p-5 max-w-xs w-full shadow-2xl border-4 border-yellow-400 text-center relative z-20">
+            <div class="text-5xl mb-1 animate-bounce">🏆</div>
+            <h3 class="text-xl font-black text-amber-950 mb-0.5">¡Excelente Trabajo!</h3>
+            <p class="text-slate-600 text-xs font-bold mb-3">¡Has completado toda la casita correctamente!</p>
+            <div class="bg-yellow-100 p-2 rounded-xl border border-yellow-300 mb-4 flex items-center justify-center space-x-1.5">
+                <span class="text-2xl">⭐</span>
+                <span class="text-base font-black text-amber-900">+5 Estrellas</span>
+            </div>
+            <button onclick="closeVictoryModal(); generateHouse();" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow border-b-3 border-emerald-800 transition transform active:scale-95 text-sm">
+                ¡Siguiente Casita! 🚀
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentRange = '200';
+        let currentTarget = 196;
+        let houseRows = [];
+        let stars = 0;
+        let audioEnabled = true;
+        let audioCtx = null;
+
+        /**
+         * DIGIT COLOR FORMATTER STRICTLY FOLLOWING RULES:
+         * - Col C: All digits GREEN (#16a34a)
+         * - Col D:
+         *     1 digit (e.g. 4)  -> RED (#dc2626)
+         *     2 digits (e.g. 18) -> 1st GREEN (#16a34a), 2nd RED (#dc2626)
+         * - Col U:
+         *     1 digit (e.g. 6)   -> BLUE (#2563eb)
+         *     2 digits (e.g. 26)  -> 1st RED (#dc2626), 2nd BLUE (#2563eb)
+         *     3 digits (e.g. 126) -> 1st GREEN (#16a34a), 2nd RED (#dc2626), 3rd BLUE (#2563eb)
+         */
+        function formatDigitsHTML(val, colType) {
+            const str = val.toString().replace(/\D/g, '');
+            if (!str) return '';
+            const len = str.length;
+            let html = '';
+
+            if (colType === 'C') {
+                for (let char of str) {
+                    html += `<span class="digit-c">${char}</span>`;
+                }
+            } else if (colType === 'D') {
+                if (len === 1) {
+                    html = `<span class="digit-d">${str[0]}</span>`;
+                } else if (len >= 2) {
+                    const cPart = str.slice(0, len - 1);
+                    const dPart = str[len - 1];
+                    html = `<span class="digit-c">${cPart}</span><span class="digit-d">${dPart}</span>`;
+                }
+            } else if (colType === 'U') {
+                if (len === 1) {
+                    html = `<span class="digit-u">${str[0]}</span>`;
+                } else if (len === 2) {
+                    html = `<span class="digit-d">${str[0]}</span><span class="digit-u">${str[1]}</span>`;
+                } else if (len >= 3) {
+                    const cPart = str.slice(0, len - 2);
+                    const dPart = str[len - 2];
+                    const uPart = str[len - 1];
+                    html = `<span class="digit-c">${cPart}</span><span class="digit-d">${dPart}</span><span class="digit-u">${uPart}</span>`;
+                }
+            }
+
+            return html;
+        }
+
+        function setRange(range) {
+            currentRange = range;
+            const ranges = ['200', '600', '999', 'random'];
+            ranges.forEach(r => {
+                const btn = document.getElementById(`btn-range-${r}`);
+                if (r === range) {
+                    btn.className = "range-btn py-1 px-0.5 rounded-lg font-black text-[10px] sm:text-xs transition bg-amber-800 text-white shadow";
+                } else {
+                    btn.className = "range-btn py-1 px-0.5 rounded-lg font-bold text-[10px] sm:text-xs transition text-amber-950 hover:bg-amber-200/70";
+                }
+            });
+
+            generateHouse();
+        }
+
+        function generateHouse() {
+            if (currentRange === '200') {
+                currentTarget = Math.floor(Math.random() * 95) + 105; // 105 - 199
+            } else if (currentRange === '600') {
+                currentTarget = Math.floor(Math.random() * 380) + 210; // 210 - 590
+            } else if (currentRange === '999') {
+                currentTarget = Math.floor(Math.random() * 380) + 610; // 610 - 990
+            } else {
+                currentTarget = Math.floor(Math.random() * 880) + 110; // 110 - 990
+            }
+
+            document.getElementById('target-number-badge').innerHTML = formatDigitsHTML(currentTarget, 'U');
+            const targetC = Math.floor(currentTarget / 100);
+
+            houseRows = [];
+
+            for (let i = 0; i < 5; i++) {
+                let editableCol = (i % 2 === 0) ? 'U' : 'D';
+                let rowC = 0, rowD = 0, rowU = 0;
+
+                if (editableCol === 'U') {
+                    rowC = Math.random() > 0.2 ? targetC : Math.max(0, targetC - 1);
+                    const remForD = Math.floor((currentTarget - (rowC * 100)) / 10);
+                    rowD = Math.floor(Math.random() * (remForD + 1));
+                    rowU = currentTarget - (rowC * 100 + rowD * 10);
+                } else {
+                    rowC = Math.random() > 0.2 ? targetC : Math.max(0, targetC - 1);
+                    const remForU = currentTarget - (rowC * 100);
+                    const maxTensU = Math.floor(remForU / 10);
+                    const tensU = Math.floor(Math.random() * Math.min(maxTensU + 1, 5));
+                    rowU = tensU * 10 + (currentTarget % 10);
+                    rowD = Math.floor((currentTarget - (rowC * 100 + rowU)) / 10);
+                }
+
+                houseRows.push({
+                    c: rowC,
+                    d: rowD,
+                    u: rowU,
+                    editable: editableCol,
+                    userDigits: (editableCol === 'C') ? [0] : (editableCol === 'D') ? [0, 0] : [0, 0, 0],
+                    status: null
+                });
+            }
+
+            renderHouseRows();
+        }
+
+        function renderHouseRows() {
+            const container = document.getElementById('house-rows-container');
+            container.innerHTML = '';
+
+            houseRows.forEach((row, rIdx) => {
+                const rowGrid = document.createElement('div');
+                let statusClass = '';
+                if (row.status === 'correct') statusClass = 'row-ok';
+                if (row.status === 'incorrect') statusClass = 'row-err';
+
+                rowGrid.className = `grid grid-cols-3 gap-1.5 items-center p-0.5 rounded-lg transition ${statusClass}`;
+                rowGrid.id = `row-${rIdx}`;
+
+                rowGrid.appendChild(createCell(row, 'C', rIdx));
+                rowGrid.appendChild(createCell(row, 'D', rIdx));
+                rowGrid.appendChild(createCell(row, 'U', rIdx));
+
+                container.appendChild(rowGrid);
+            });
+        }
+
+        function createCell(row, colType, rIdx) {
+            const cell = document.createElement('div');
+            cell.className = 'cell-plate';
+
+            cell.innerHTML = `
+                <span class="screw-dot s-tl"></span><span class="screw-dot s-tr"></span>
+                <span class="screw-dot s-bl"></span><span class="screw-dot s-br"></span>
+            `;
+
+            if (row.editable === colType) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex items-center justify-center relative z-10';
+
+                if (colType === 'C') {
+                    wrapper.appendChild(createStepperGroup(rIdx, 0, row.userDigits[0], 'digit-c', 'btn-c-style'));
+                } else if (colType === 'D') {
+                    wrapper.appendChild(createStepperGroup(rIdx, 0, row.userDigits[0], 'digit-c', 'btn-c-style'));
+                    wrapper.appendChild(createStepperGroup(rIdx, 1, row.userDigits[1], 'digit-d', 'btn-d-style'));
+                } else if (colType === 'U') {
+                    wrapper.appendChild(createStepperGroup(rIdx, 0, row.userDigits[0], 'digit-c', 'btn-c-style'));
+                    wrapper.appendChild(createStepperGroup(rIdx, 1, row.userDigits[1], 'digit-d', 'btn-d-style'));
+                    wrapper.appendChild(createStepperGroup(rIdx, 2, row.userDigits[2], 'digit-u', 'btn-u-style'));
+                }
+
+                cell.appendChild(wrapper);
+            } else {
+                const val = (colType === 'C') ? row.c : (colType === 'D') ? row.d : row.u;
+                const textSpan = document.createElement('span');
+                textSpan.className = 'text-base sm:text-lg font-black tracking-wide relative z-10';
+                textSpan.innerHTML = formatDigitsHTML(val, colType);
+                cell.appendChild(textSpan);
+            }
+
+            return cell;
+        }
+
+        function createStepperGroup(rIdx, posIdx, currentDigit, colorClass, btnStyle) {
+            const box = document.createElement('div');
+            box.className = 'stepper-digit-group';
+
+            const btnUp = document.createElement('button');
+            btnUp.type = 'button';
+            btnUp.className = `btn-stepper ${btnStyle}`;
+            btnUp.innerText = '▲';
+            btnUp.onclick = () => stepDigit(rIdx, posIdx, 1);
+
+            const digitSpan = document.createElement('span');
+            digitSpan.className = `text-sm sm:text-base font-black my-0 ${colorClass}`;
+            digitSpan.innerText = currentDigit;
+
+            const btnDown = document.createElement('button');
+            btnDown.type = 'button';
+            btnDown.className = `btn-stepper ${btnStyle}`;
+            btnDown.innerText = '▼';
+            btnDown.onclick = () => stepDigit(rIdx, posIdx, -1);
+
+            box.appendChild(btnUp);
+            box.appendChild(digitSpan);
+            box.appendChild(btnDown);
+
+            return box;
+        }
+
+        function stepDigit(rIdx, posIdx, delta) {
+            playBirdChirp();
+            const row = houseRows[rIdx];
+            row.userDigits[posIdx] = (row.userDigits[posIdx] + delta + 10) % 10;
+            row.status = null;
+            renderHouseRows();
+        }
+
+        function checkCurrentHouse() {
+            let allCorrect = true;
+
+            houseRows.forEach((row) => {
+                let userVal = 0;
+
+                if (row.editable === 'C') {
+                    userVal = row.userDigits[0];
+                } else if (row.editable === 'D') {
+                    userVal = row.userDigits[0] * 10 + row.userDigits[1];
+                } else if (row.editable === 'U') {
+                    userVal = row.userDigits[0] * 100 + row.userDigits[1] * 10 + row.userDigits[2];
+                }
+
+                const expectedVal = (row.editable === 'C') ? row.c : (row.editable === 'D') ? row.d : row.u;
+
+                if (userVal === expectedVal) {
+                    row.status = 'correct';
+                } else {
+                    row.status = 'incorrect';
+                    allCorrect = false;
+                }
+            });
+
+            renderHouseRows();
+
+            if (allCorrect) {
+                playSound('victory');
+                addStars(5);
+                triggerConfetti();
+                showVictoryModal();
+            } else {
+                playSound('incorrect');
+            }
+        }
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) audioCtx = new AudioContext();
+            }
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            document.getElementById('audio-toggle-btn').innerText = audioEnabled ? '🔊' : '🔇';
+        }
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'incorrect') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } else if (type === 'victory') {
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.08);
+                    gain.gain.setValueAtTime(0.2, now + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + i * 0.08);
+                    osc.stop(now + i * 0.08 + 0.25);
+                });
+            }
+        }
+
+        function playBirdChirp() {
+            if (!audioEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(2200, now);
+            osc.frequency.exponentialRampToValueAtTime(3000, now + 0.05);
+            osc.frequency.exponentialRampToValueAtTime(2400, now + 0.12);
+
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.14);
+        }
+
+        function addStars(num) {
+            stars += num;
+            document.getElementById('star-count').innerText = stars;
+        }
+
+        function openWelcomeModal() {
+            playBirdChirp();
+            document.getElementById('welcome-modal').classList.remove('hidden');
+        }
+
+        function closeWelcomeModal() {
+            document.getElementById('welcome-modal').classList.add('hidden');
+        }
+
+        function showVictoryModal() {
+            document.getElementById('victory-modal').classList.remove('hidden');
+        }
+
+        function closeVictoryModal() {
+            document.getElementById('victory-modal').classList.add('hidden');
+        }
+
+        function triggerConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#16a34a', '#dc2626', '#2563eb', '#f59e0b', '#8b5cf6'];
+
+            for (let i = 0; i < 70; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.7) * 12,
+                    size: Math.random() * 7 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 1
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let alive = false;
+
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.22;
+                    p.life -= 0.02;
+
+                    if (p.life > 0) {
+                        alive = true;
+                        ctx.globalAlpha = p.life;
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(p.x, p.y, p.size, p.size);
+                    }
+                });
+
+                if (alive) requestAnimationFrame(animate);
+                else ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            animate();
+        }
+
+        window.onload = function() {
+            generateHouse();
+        };
+    </script>
+</body>
+</html>
